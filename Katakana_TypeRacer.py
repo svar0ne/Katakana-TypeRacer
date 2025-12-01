@@ -3,21 +3,20 @@ from tkinter import messagebox
 import random
 import time
 import json
+from katakana_list import *
 
 class Game():
     def __init__(self):
-        self.kana_list = [
-        ("ア", "a"), ("イ", "i"), ("ウ", "u"), ("エ", "e"), ("オ", "o")
-        ]
+        self.kana_list = katakana_list
         self.root = tk.Tk()
         self.root.geometry("350x450")
-  
-    def restart(self):
-        for x in self.root.winfo_children():
-            x.destroy()
         self.menu()
+        self.root.mainloop()
 
     def menu(self):
+        for x in self.root.winfo_children():
+            x.destroy()
+    
         self.title = tk.Label(self.root, text="Katakana TypeRacer",)
         self.title.pack()
 
@@ -27,18 +26,15 @@ class Game():
         self.stats_button = tk.Button(self.root, text="stats", command=self.stats_page)
         self.stats_button.pack()
 
-        self.root.mainloop()
-
     def stats_page(self):
-        self.title.destroy()
-        self.start_button.destroy()
-        self.stats_button.destroy()
+        for x in self.root.winfo_children():
+            x.destroy()
 
         try:
             with open("stats.json", "r") as s:
                 json_stats = json.load(s)
         except FileNotFoundError:
-            json_stats = {"tpk": [0.0]}
+            json_stats = {"tpk": [0.0, 0.0]}
 
         tpk_data = (json_stats["tpk"])
         best_tpk = min(tpk_data)
@@ -57,13 +53,12 @@ class Game():
         self.stat3 = tk.Label(self.root, text=f"last:    {last_tpk} sec", font=("courier", 9))
         self.stat3.pack()
 
-        self.back_button = tk.Button(self.root, text="back", command=self.restart)
+        self.back_button = tk.Button(self.root, text="back", command=self.menu)
         self.back_button.pack()
 
     def game_start(self):
-        self.title.destroy()
-        self.start_button.destroy()
-        self.stats_button.destroy()
+        for x in self.root.winfo_children():
+            x.destroy()
 
         self.kana_list_copy = self.kana_list.copy()
         self.wrong = {}
@@ -88,6 +83,7 @@ class Game():
             self.kana, self.romaji = self.random_tuple
             self.kana_label.config(text=self.kana)
         else:
+            self.entry.config(state="disabled")
             self.feedback.config(text="DONE")
             self.end = time.time()
             total_time = round(self.end - self.start, 2)
@@ -109,7 +105,11 @@ class Game():
                 for x, y in self.wrong.items():
                     wrong_str += f"{x}={y}    "
                 messagebox.showinfo(f"wrong kana", f"you got the following katakana wrong:\n\n{wrong_str}")
-            
+
+            if wrong_count >0:
+                self.more = tk.Button(self.root, text="show more", command=more_info)
+                self.more.pack()           
+
             try:   
                 with open("stats.json", "r") as s:
                     json_stats = json.load(s)
@@ -119,16 +119,12 @@ class Game():
             json_stats["tpk"].append(per_kana)
             with open("stats.json", "w") as s:
                 json.dump(json_stats, s, indent=4)
-
-            if wrong_count >0:
-                self.more = tk.Button(self.root, text="show more", command=more_info)
-                self.more.pack()
-                
-            self.back_to_menu = tk.Button(self.root, text="start menu", command=self.restart)
+   
+            self.back_to_menu = tk.Button(self.root, text="start menu", command=self.menu)
             self.back_to_menu.pack()
         
     def check_answer(self, event=None):
-        answer = self.entry.get()
+        answer = self.entry.get().strip()
 
         if answer == self.romaji:
             self.attempts = 0
@@ -149,6 +145,6 @@ class Game():
             self.entry.delete(0, tk.END)
                 
 player = Game()
-player.menu()
+
 
 
