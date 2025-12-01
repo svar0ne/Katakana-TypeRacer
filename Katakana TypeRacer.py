@@ -9,21 +9,25 @@ class Game():
         self.kana_list = [
         ("ア", "a"), ("イ", "i"), ("ウ", "u"), ("エ", "e"), ("オ", "o")
         ]
-
+        self.root = tk.Tk()
+        self.root.geometry("350x450")
+  
     def restart(self):
-        for x in root.winfo_children():
+        for x in self.root.winfo_children():
             x.destroy()
         self.menu()
 
     def menu(self):
-        self.title = tk.Label(root, text="Katakana TypeRacer")
+        self.title = tk.Label(self.root, text="Katakana TypeRacer",)
         self.title.pack()
 
-        self.start_button = tk.Button(root, text="start game", command=self.game_start)
+        self.start_button = tk.Button(self.root, text="start game", command=self.game_start)
         self.start_button.pack()
 
-        self.stats_button = tk.Button(root, text="stats", command=self.stats_page)
+        self.stats_button = tk.Button(self.root, text="stats", command=self.stats_page)
         self.stats_button.pack()
+
+        self.root.mainloop()
 
     def stats_page(self):
         self.title.destroy()
@@ -34,22 +38,26 @@ class Game():
             with open("stats.json", "r") as s:
                 json_stats = json.load(s)
         except FileNotFoundError:
-            json_stats = {"tpk": [0]}
+            json_stats = {"tpk": [0.0]}
 
         tpk_data = (json_stats["tpk"])
         best_tpk = min(tpk_data)
         avg_tpk = round(sum(tpk_data) / len(tpk_data), 2)
+        last_tpk = tpk_data[-1]
 
-        self.stats_title = tk.Label(root, text="time per katakana: ", font=("", 12))
+        self.stats_title = tk.Label(self.root, text="time per katakana: ", font=("", 12))
         self.stats_title.pack()
 
-        self.stat1 = tk.Label(root, text=f"average: {avg_tpk} sec", font=("courier", 9))
+        self.stat1 = tk.Label(self.root, text=f"average: {avg_tpk} sec", font=("courier", 9))
         self.stat1.pack()
 
-        self.stat2 = tk.Label(root, text=f"best:    {best_tpk}sec ", font=("courier", 9))
+        self.stat2 = tk.Label(self.root, text=f"best:    {best_tpk} sec", font=("courier", 9))
         self.stat2.pack()
 
-        self.back_button = tk.Button(root, text="back", command=self.restart)
+        self.stat3 = tk.Label(self.root, text=f"last:    {last_tpk} sec", font=("courier", 9))
+        self.stat3.pack()
+
+        self.back_button = tk.Button(self.root, text="back", command=self.restart)
         self.back_button.pack()
 
     def game_start(self):
@@ -62,13 +70,13 @@ class Game():
         self.attempts = 0
         self.start = time.time()
         
-        self.kana_label = tk.Label(root, text="")
+        self.kana_label = tk.Label(self.root, text="")
         self.kana_label.pack()
         
-        self.feedback = tk.Label(root, text="")
+        self.feedback = tk.Label(self.root, text="")
         self.feedback.pack()
 
-        self.entry = tk.Entry(root)
+        self.entry = tk.Entry(self.root)
         self.entry.pack()
         self.entry.focus()
         self.entry.bind("<Return>", self.check_answer)
@@ -93,14 +101,14 @@ class Game():
             }
             stats_str = "\n".join(stats.values())
 
-            self.end_stats = tk.Label(root, text=stats_str, font=("courier", 9))
+            self.end_stats = tk.Label(self.root, text=stats_str, font=("courier", 9))
             self.end_stats.pack()
 
             def more_info():
                 wrong_str = ""
                 for x, y in self.wrong.items():
                     wrong_str += f"{x}={y}    "
-                messagebox.showinfo(f"wrong kana", f"you got the following katakana wrong:\n{wrong_str}")
+                messagebox.showinfo(f"wrong kana", f"you got the following katakana wrong:\n\n{wrong_str}")
             
             try:   
                 with open("stats.json", "r") as s:
@@ -113,10 +121,10 @@ class Game():
                 json.dump(json_stats, s, indent=4)
 
             if wrong_count >0:
-                self.more = tk.Button(root, text="show wrong kana", command=more_info)
+                self.more = tk.Button(self.root, text="show more", command=more_info)
                 self.more.pack()
                 
-            self.back_to_menu = tk.Button(root, text="start menu", command=self.restart)
+            self.back_to_menu = tk.Button(self.root, text="start menu", command=self.restart)
             self.back_to_menu.pack()
         
     def check_answer(self, event=None):
@@ -140,11 +148,7 @@ class Game():
                 self.feedback.config(text="WRONG")
             self.entry.delete(0, tk.END)
                 
+player = Game()
+player.menu()
 
-root = tk.Tk()
-root.geometry("350x450")
 
-game = Game()
-game.menu()
-
-root.mainloop()
