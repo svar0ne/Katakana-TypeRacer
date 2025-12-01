@@ -3,6 +3,7 @@ from tkinter import messagebox
 import random
 import time
 import json
+import os
 from katakana_list import *
 
 class Game():
@@ -10,6 +11,7 @@ class Game():
         self.kana_list = katakana_list
         self.root = tk.Tk()
         self.root.geometry("350x450")
+
         self.menu()
         self.root.mainloop()
 
@@ -19,6 +21,12 @@ class Game():
     
         self.title = tk.Label(self.root, text="Katakana TypeRacer",)
         self.title.pack()
+
+        self.shortcut = tk.Label(self.root, text="enter = start game")
+        self.shortcut.pack()
+        self.shortcut.focus()
+        self.shortcut.bind("<Return>", self.game_start)
+
 
         self.start_button = tk.Button(self.root, text="start game", command=self.game_start)
         self.start_button.pack()
@@ -53,10 +61,23 @@ class Game():
         self.stat3 = tk.Label(self.root, text=f"last:    {last_tpk} sec", font=("courier", 9))
         self.stat3.pack()
 
+        def confirm():
+            choice = messagebox.askyesno(title="warning", message="this will permanently reset your data.\n\nare you sure?")
+            if choice == True:
+                if os.path.exists("stats.json"):
+                    os.remove("stats.json")
+                    self.stats_page()
+                else:
+                    pass
+            else:
+                pass
+        self.reset = tk.Button(self.root, text="reset", command=confirm)
+        self.reset.pack()
+
         self.back_button = tk.Button(self.root, text="back", command=self.menu)
         self.back_button.pack()
 
-    def game_start(self):
+    def game_start(self, event=None):
         for x in self.root.winfo_children():
             x.destroy()
 
@@ -75,6 +96,7 @@ class Game():
         self.entry.pack()
         self.entry.focus()
         self.entry.bind("<Return>", self.check_answer)
+
         self.kana_get()
 
     def kana_get(self):
