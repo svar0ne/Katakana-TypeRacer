@@ -115,8 +115,8 @@ class Game():
 
             stats = {
                 "total_time":    f"Total time:    {total_time} sec",
-                "per_kana":        f"Time per kana: {per_kana} sec",
-                "wrong_count":   f"You got: {wrong_count} kana wrong",
+                "per_kana":      f"Time per kana: {per_kana} sec",
+                "wrong_count":   f"You got:  {wrong_count} kana wrong",
             }
             stats_str = "\n".join(stats.values())
 
@@ -135,7 +135,7 @@ class Game():
 
             if wrong_count >0:
                 self.more = tk.Button(self.root, text="show more", command=more_info)
-                self.more.pack(padx=(0, 70))
+                self.more.pack(padx=(0, 75))
             else:
                 self.back_to_menu.place_configure(y=211, x=142)           
 
